@@ -34,7 +34,7 @@ const backingSynth = new Tone.PolySynth(Tone.Synth, {
     release: 0.8 // Lush padded strings
   }
 }).connect(reverb).toDestination();
-backingSynth.volume.value = -15; // Slightly louder backing strings
+backingSynth.volume.value = -12; // Slightly louder backing strings
 
 const tickSynth = new Tone.MembraneSynth().toDestination();
 tickSynth.volume.value = -25; // Soft tap
@@ -303,7 +303,7 @@ async function loadBackingTrack(songId) {
            if (shiftedBeat >= 0) {
              backingChordsData.push({
                note: n.name,
-               time: shiftedBeat,
+               beat: shiftedBeat,
                duration: n.durationTicks / midi.header.ppq
              });
            }
@@ -311,7 +311,7 @@ async function loadBackingTrack(songId) {
        }
      } catch (err) {
         console.error("Backtrack error:", err);
-        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v1.7");
+        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v1.8");
      }
   } catch(e) {
     console.error("MIDI Backing Track failed to load:", e);
