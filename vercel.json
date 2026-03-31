@@ -1,0 +1,17 @@
+{
+  "headers": [
+    {
+      "source": "/(.*).mid",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "audio/midi"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}
