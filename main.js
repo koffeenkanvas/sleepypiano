@@ -24,7 +24,7 @@ const synth = new Tone.Sampler({
 // Soft reverb and Felt-Piano Filter to fit the SleepyKeys aesthetic perfectly
 const reverb = new Tone.Reverb(2.5).toDestination();
 // Rolling off high frequencies makes the Grand Piano sound like a muted felt piano!
-const feltFilter = new Tone.Filter(isMobile ? 900 : 700, "lowpass").toDestination();
+const feltFilter = new Tone.Filter(isMobile ? 1500 : 700, "lowpass").toDestination();
 
 synth.chain(feltFilter, reverb);
 
@@ -281,11 +281,11 @@ async function loadBackingTrack(songId) {
      let beatOffset = 0;
      
      if (songId === "hey_jude") {
-        url = 'hey-jude.mid?v=2.0';
+        url = 'hey-jude.mid?v=2.1';
         trackIdx = 4;
         beatOffset = 3;
      } else if (songId === "lovely") {
-        url = 'lovely-full.mid?v=2.0'; // Use long MIDI for full song
+        url = 'lovely-full.mid?v=2.1'; // Use long MIDI for full song
         trackIdx = 0; // Use Track 0 (smashed) but it covers everything
         beatOffset = 0;
      } else {
@@ -315,7 +315,7 @@ async function loadBackingTrack(songId) {
        }
      } catch (err) {
         console.error("Backtrack error:", err);
-        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v2.0");
+        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v2.1");
      }
   } catch(e) {
     console.error("MIDI Backing Track failed to load:", e);
@@ -434,7 +434,14 @@ function initTeacher() {
   mainBtn.addEventListener('click', async () => {
     
     if (Tone.context.state !== 'running') await Tone.start();
-    await Tone.context.resume(); // Explicit unlock for iPad/Mobile
+    await Tone.context.resume();
+
+    console.log("Audio Diagnostic: Synth Loaded =", synth.loaded);
+    if (!synth.loaded) {
+       alert("Wait! The piano sounds are still downloading... Please try again in 5 seconds.");
+       return;
+    }
+ // Explicit unlock for iPad/Mobile
 
     Tone.Transport.stop();
     Tone.Transport.cancel(0);
