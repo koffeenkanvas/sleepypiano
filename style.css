@@ -30,12 +30,14 @@ body {
   color: var(--text-main);
   min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
-  padding-bottom: 2rem;
+  padding-top: 80px;
+  padding-bottom: 3rem;
 }
 
 /* Ambient Blobs */
