@@ -277,11 +277,11 @@ async function loadBackingTrack(songId) {
      let beatOffset = 0;
      
      if (songId === "hey_jude") {
-        url = '/hey-jude.mid?v=1.6';
+        url = 'hey-jude.mid?v=1.7';
         trackIdx = 4;
         beatOffset = 3;
      } else if (songId === "lovely") {
-        url = '/lovely-full.mid?v=1.6'; // Use long MIDI for full song
+        url = 'lovely-full.mid?v=1.7'; // Use long MIDI for full song
         trackIdx = 0; // Use Track 0 (smashed) but it covers everything
         beatOffset = 0;
      } else {
@@ -311,7 +311,7 @@ async function loadBackingTrack(songId) {
        }
      } catch (err) {
         console.error("Backtrack error:", err);
-        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v1.6");
+        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v1.7");
      }
   } catch(e) {
     console.error("MIDI Backing Track failed to load:", e);
