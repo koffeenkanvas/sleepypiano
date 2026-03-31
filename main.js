@@ -277,11 +277,11 @@ async function loadBackingTrack(songId) {
      let beatOffset = 0;
      
      if (songId === "hey_jude") {
-        url = './hey-jude.mid';
+        url = '/hey-jude.mid?v=1.5';
         trackIdx = 4;
         beatOffset = 3;
      } else if (songId === "lovely") {
-        url = './lovely-full.mid'; // Use long MIDI for full song
+        url = '/lovely-full.mid?v=1.5'; // Use long MIDI for full song
         trackIdx = 0; // Use Track 0 (smashed) but it covers everything
         beatOffset = 0;
      } else {
