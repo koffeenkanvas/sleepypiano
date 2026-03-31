@@ -288,8 +288,11 @@ async function loadBackingTrack(songId) {
         return;
      }
      
-     const resp = await fetch(url);
-     if(resp.ok) {
+     try {
+       const resp = await fetch(url);      
+       if(!resp.ok) {
+          throw new Error(`Failed to load MIDI: ${resp.status} ${resp.statusText}`);
+       }
        const ab = await resp.arrayBuffer();
        const midi = new Midi(ab);
        const track = midi.tracks[trackIdx]; 
@@ -306,6 +309,9 @@ async function loadBackingTrack(songId) {
            }
          });
        }
+     } catch (err) {
+        console.error("Backtrack error:", err);
+        alert("Backtrack not playing: " + url + "\nReason: " + err.message + "\nTry refreshing or checking if the file is in your GitHub repo!");
      }
   } catch(e) {
     console.error("MIDI Backing Track failed to load:", e);
