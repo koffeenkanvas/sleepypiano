@@ -277,11 +277,11 @@ async function loadBackingTrack(songId) {
      let beatOffset = 0;
      
      if (songId === "hey_jude") {
-        url = '/Hey-Jude-1.mid';
+        url = '/hey-jude.mid';
         trackIdx = 4;
         beatOffset = 3;
      } else if (songId === "lovely") {
-        url = '/Billie Eilish - Lovely.mid'; // Use long MIDI for full song
+        url = '/lovely-full.mid'; // Use long MIDI for full song
         trackIdx = 0; // Use Track 0 (smashed) but it covers everything
         beatOffset = 0;
      } else {

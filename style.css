@@ -345,6 +345,14 @@ body {
   display: flex;
   justify-content: center;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .keyboard-wrapper {
+    justify-content: flex-start;
+    padding: 1rem;
+  }
 }
 
 #keyboard {
@@ -446,6 +454,23 @@ body {
   0% { filter: brightness(1) }
   50% { filter: brightness(1.5) }
   100% { filter: brightness(1) }
+}
+@media (max-width: 768px) {
+  .key.white {
+    width: 30px;
+    height: 150px;
+  }
+  .key.black {
+    width: 22px;
+    height: 90px;
+    margin: 0 -11px;
+  }
+  .schema-keys-text {
+    font-size: 1.5rem;
+  }
+  .schema-lyrics {
+    font-size: 1.1rem;
+  }
 }
 .flash-correct {
   animation: flashGlow 0.3s ease-out;
