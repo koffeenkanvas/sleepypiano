@@ -18,7 +18,13 @@ const synth = new Tone.Sampler({
     "A7": "A7.mp3", "C8": "C8.mp3"
   },
   release: 1,
-  baseUrl: "https://tonejs.github.io/audio/salamander/"
+  baseUrl: "https://tonejs.github.io/audio/salamander/",
+
+  onerror: (err) => {
+    console.error("Sampler Error:", err);
+    alert("Piano sounds failed to load from internet. Check your connection or iPad security settings!");
+  },
+
 }).toDestination();
 
 // Soft reverb and Felt-Piano Filter to fit the SleepyKeys aesthetic perfectly
@@ -281,11 +287,11 @@ async function loadBackingTrack(songId) {
      let beatOffset = 0;
      
      if (songId === "hey_jude") {
-        url = 'hey-jude.mid?v=2.1';
+        url = 'hey-jude.mid?v=2.2';
         trackIdx = 4;
         beatOffset = 3;
      } else if (songId === "lovely") {
-        url = 'lovely-full.mid?v=2.1'; // Use long MIDI for full song
+        url = 'lovely-full.mid?v=2.2'; // Use long MIDI for full song
         trackIdx = 0; // Use Track 0 (smashed) but it covers everything
         beatOffset = 0;
      } else {
@@ -315,7 +321,7 @@ async function loadBackingTrack(songId) {
        }
      } catch (err) {
         console.error("Backtrack error:", err);
-        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v2.1");
+        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v2.2");
      }
   } catch(e) {
     console.error("MIDI Backing Track failed to load:", e);
@@ -435,6 +441,11 @@ function initTeacher() {
     
     if (Tone.context.state !== 'running') await Tone.start();
     await Tone.context.resume();
+
+    const osc = new Tone.Oscillator().toDestination();
+    osc.start().stop("+0.1"); // Explicit hardware "nudge" for iPad/iPhone
+    alert("Audio Context: " + Tone.context.state + " (Build v2.2)");
+
 
     console.log("Audio Diagnostic: Synth Loaded =", synth.loaded);
     if (!synth.loaded) {
