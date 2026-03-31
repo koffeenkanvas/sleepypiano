@@ -1,4 +1,4 @@
-﻿import * as Tone from 'tone';
+import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 
 // Tone.js Synthesizer Setup: Using a Sampler with high-quality piano audio files
@@ -34,7 +34,7 @@ const backingSynth = new Tone.PolySynth(Tone.Synth, {
     release: 0.8 // Lush padded strings
   }
 }).connect(reverb).toDestination();
-backingSynth.volume.value = -24; // Slightly louder backing strings
+backingSynth.volume.value = -15; // Slightly louder backing strings
 
 const tickSynth = new Tone.MembraneSynth().toDestination();
 tickSynth.volume.value = -25; // Soft tap
