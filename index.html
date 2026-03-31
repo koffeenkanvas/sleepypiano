@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SleepyKeys - Teacher</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <!-- Abstract Ambient Backgrounds -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container">
+      <div class="app-header">
+        <h1>SleepyKeys</h1>
+        <p>zz...mozart...zzz</p>
+      </div>
+
+      <div class="teacher-board">
+        <div class="lesson-info">
+          <span class="badge">LESSON LIBRARY</span>
+          <select id="song-selector" class="song-select">
+            <option value="bohemian_rhapsody">Bohemian Rhapsody</option>
+            <option value="hey_jude">Hey Jude</option>
+            <option value="lovely">Lovely</option>
+          </select>
+        </div>
+
+        <div class="mode-selector" id="mode-selector">
+          <button class="mode-toggle active" data-mode="step">Step</button>
+          <button class="mode-toggle" data-mode="follow">Follow</button>
+          <button class="mode-toggle" data-mode="autoplay">Autoplay</button>
+        </div>
+        
+        <div class="settings-row">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="backing-toggle" checked>
+            <span class="checkmark"></span>
+            Play Backing Track
+          </label>
+        </div>
+        
+        <div class="schema-container" id="schema-container">
+          <p class="placeholder-text">Select a mode and dive in.</p>
+        </div>
+
+        <div class="button-group">
+          <button id="main-action-btn" class="glow-btn">Start Step Mode</button>
+        </div>
+      </div>
+      
+      <div class="keyboard-wrapper">
+        <ul id="keyboard">
+          <!-- Multi-octave keys will be generated via JS for cleaner code -->
+        </ul>
+      </div>
+
+    </div>
+    
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

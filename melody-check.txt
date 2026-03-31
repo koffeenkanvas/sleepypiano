@@ -1,0 +1,165 @@
+﻿
+=== Track 1: acoustic grand piano (164 notes) ===
+   0: C2   beat=3.998    dur=7.7
+   1: E4   beat=3.998    dur=0.581
+   2: G4   beat=4.498    dur=0.531
+   3: E4   beat=5        dur=0.558
+   4: G4   beat=5.498    dur=0.56
+   5: E4   beat=6.002    dur=0.583
+   6: G4   beat=6.502    dur=0.535
+   7: E4   beat=7        dur=0.615
+   8: G4   beat=7.5      dur=0.571
+   9: E4   beat=7.998    dur=0.623
+  10: G4   beat=8.502    dur=0.535
+  11: E4   beat=9        dur=0.606
+  12: G4   beat=9.502    dur=0.546
+  13: E4   beat=9.996    dur=0.619
+  14: G4   beat=10.5     dur=0.554
+  15: E4   beat=11.004   dur=0.498
+  16: G4   beat=11.502   dur=0.542
+  17: E4   beat=11.996   dur=0.565
+  18: E2   beat=12.004   dur=3.979
+  19: G4   beat=12.5     dur=0.512
+  20: E4   beat=13.002   dur=0.521
+  21: G4   beat=13.502   dur=0.56
+  22: E4   beat=14.002   dur=0.546
+  23: G4   beat=14.5     dur=0.46
+  24: E4   beat=15       dur=0.527
+  25: G4   beat=15.502   dur=0.573
+  26: D4   beat=15.996   dur=0.531
+  27: B1   beat=16.004   dur=3.975
+  28: F#4  beat=16.496   dur=0.575
+  29: D4   beat=17       dur=0.938
+  ... (134 more)
+
+=== Track 5: string ensemble 2 (62 notes) ===
+   0: B3   beat=3.998    dur=6.008
+   1: E4   beat=3.998    dur=6.102
+   2: C2   beat=3.998    dur=7.998
+   3: G3   beat=3.998    dur=6.092
+   4: B3   beat=9.996    dur=8.029
+   5: D4   beat=9.996    dur=2.112
+   6: F#4  beat=9.996    dur=1.969
+   7: E4   beat=11.998   dur=4.104
+   8: G4   beat=11.998   dur=4.15
+   9: E2   beat=11.998   dur=4.092
+  10: F#4  beat=15.998   dur=2.156
+  11: D4   beat=15.998   dur=2.127
+  12: B1   beat=15.998   dur=4.129
+  13: F#3  beat=17.998   dur=2.09
+  14: D4   beat=17.998   dur=2
+  15: B3   beat=17.998   dur=8.056
+  16: G3   beat=19.998   dur=12.117
+  17: E4   beat=19.998   dur=5.785
+  18: C2   beat=19.998   dur=8.04
+  19: E4   beat=26       dur=1.483
+  20: C4   beat=26       dur=1.429
+  21: A3   beat=27.5     dur=0.765
+  22: C4   beat=27.5     dur=0.483
+  23: E2   beat=28       dur=4.1
+  24: B3   beat=28       dur=3.998
+  25: E4   beat=28       dur=3.973
+  26: D4   beat=31.998   dur=3.948
+  27: B3   beat=31.998   dur=3.86
+  28: B1   beat=31.998   dur=3.898
+  29: B4   beat=32.998   dur=1.104
+  ... (32 more)
+
+=== Track 7: tenor sax (98 notes) ===
+   0: E3   beat=3.998    dur=2.052
+   1: F#3  beat=5.998    dur=2.035
+   2: G3   beat=8        dur=2.048
+   3: A3   beat=9.996    dur=1.012
+   4: B3   beat=11       dur=1.052
+   5: D4   beat=11.998   dur=0.654
+   6: E4   beat=12.502   dur=1.106
+   7: D4   beat=13.498   dur=0.379
+   8: D4   beat=13.998   dur=1.508
+   9: B3   beat=15.502   dur=0.287
+  10: B3   beat=15.998   dur=1.144
+  11: A3   beat=17       dur=0.535
+  12: B3   beat=17.502   dur=0.552
+  13: A3   beat=17.998   dur=0.525
+  14: G3   beat=18.5     dur=0.25
+  15: G3   beat=19       dur=0.579
+  16: E3   beat=19.5     dur=0.265
+  17: E3   beat=19.998   dur=1.977
+  18: F#3  beat=21.998   dur=1.933
+  19: G3   beat=24       dur=1.96
+  20: A3   beat=26       dur=1.094
+  21: B3   beat=27.002   dur=0.965
+  22: D4   beat=28       dur=0.606
+  23: E4   beat=28.502   dur=1.06
+  24: D4   beat=29.5     dur=0.34
+  25: D4   beat=30       dur=1.452
+  26: B3   beat=31.5     dur=0.279
+  27: B3   beat=31.998   dur=1.137
+  28: A3   beat=32.998   dur=0.542
+  29: B3   beat=33.502   dur=0.615
+  ... (68 more)
+
+=== Track 9: synth voice (79 notes) ===
+   0: G3   beat=3.998    dur=2.048
+   1: A3   beat=6.002    dur=2.035
+   2: B3   beat=8        dur=2.048
+   3: D4   beat=9.996    dur=1.008
+   4: E4   beat=11.002   dur=1.052
+   5: A4   beat=11.998   dur=0.656
+   6: B4   beat=12.5     dur=1.104
+   7: A4   beat=13.498   dur=0.379
+   8: A4   beat=13.998   dur=1.508
+   9: D4   beat=15.5     dur=0.287
+  10: D4   beat=15.998   dur=1.148
+  11: C4   beat=17       dur=0.535
+  12: D4   beat=17.5     dur=0.552
+  13: C4   beat=17.998   dur=0.527
+  14: B3   beat=18.5     dur=0.25
+  15: B3   beat=19.002   dur=0.579
+  16: G3   beat=19.5     dur=0.265
+  17: G3   beat=19.998   dur=1.977
+  18: A3   beat=22       dur=1.935
+  19: B3   beat=23.998   dur=1.96
+  20: D4   beat=26       dur=1.094
+  21: E4   beat=27.002   dur=0.965
+  22: A4   beat=28       dur=0.606
+  23: B4   beat=28.498   dur=1.06
+  24: A4   beat=29.5     dur=0.34
+  25: A4   beat=30       dur=1.452
+  26: D4   beat=31.5     dur=0.279
+  27: D4   beat=31.998   dur=1.137
+  28: C4   beat=33       dur=0.542
+  29: D4   beat=33.498   dur=0.617
+  ... (49 more)
+
+=== Track 29: bright acoustic piano (78 notes) ===
+   0: C2   beat=3.998    dur=7.7
+   1: C4   beat=3.998    dur=7.627
+   2: E4   beat=3.998    dur=7.727
+   3: G4   beat=3.998    dur=7.719
+   4: B4   beat=3.998    dur=7.708
+   5: E2   beat=11.998   dur=3.725
+   6: E4   beat=11.998   dur=3.669
+   7: G4   beat=11.998   dur=3.644
+   8: B4   beat=11.998   dur=3.606
+   9: B1   beat=15.998   dur=3.954
+  10: B3   beat=15.998   dur=3.95
+  11: D4   beat=15.998   dur=3.983
+  12: F#4  beat=15.998   dur=4.017
+  13: C2   beat=19.998   dur=7.7
+  14: C4   beat=19.998   dur=7.627
+  15: E4   beat=19.998   dur=7.727
+  16: G4   beat=19.998   dur=7.719
+  17: B4   beat=19.998   dur=7.708
+  18: E2   beat=28       dur=3.723
+  19: E4   beat=28       dur=3.667
+  20: G4   beat=28       dur=3.642
+  21: B4   beat=28       dur=3.604
+  22: B1   beat=31.998   dur=3.954
+  23: B3   beat=31.998   dur=3.948
+  24: D4   beat=31.998   dur=3.983
+  25: F#4  beat=31.998   dur=4.017
+  26: C2   beat=35.998   dur=7.7
+  27: C4   beat=35.998   dur=7.627
+  28: E4   beat=35.998   dur=7.727
+  29: G4   beat=35.998   dur=7.719
+  ... (48 more)
