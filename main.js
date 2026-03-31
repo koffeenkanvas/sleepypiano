@@ -321,7 +321,7 @@ async function loadBackingTrack(songId) {
        }
      } catch (err) {
         console.error("Backtrack error:", err);
-        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v2.2");
+        alert("Backtrack not playing: " + new URL(url, window.location.href).href + "\nReason: " + err.message + "\nBuild: v2.3");
      }
   } catch(e) {
     console.error("MIDI Backing Track failed to load:", e);
@@ -442,9 +442,11 @@ function initTeacher() {
     if (Tone.context.state !== 'running') await Tone.start();
     await Tone.context.resume();
 
-    const osc = new Tone.Oscillator().toDestination();
-    osc.start().stop("+0.1"); // Explicit hardware "nudge" for iPad/iPhone
-    alert("Audio Context: " + Tone.context.state + " (Build v2.2)");
+    if (isMobile) {
+       const osc = new Tone.Oscillator().toDestination();
+       osc.start().stop("+0.1"); // Explicit hardware "nudge" for iPad/iPhone
+       alert("Audio Context: " + Tone.context.state + " (Build v2.3 Diagnostics)");
+    }
 
 
     console.log("Audio Diagnostic: Synth Loaded =", synth.loaded);
