@@ -347,11 +347,7 @@ function prepLesson(songId) {
 
 function updateSongHint(songId) {
   const hintEl = document.getElementById('song-hint');
-  if (!hintEl) return;
-  if (songId === 'lovely' && (currentMode === 'autoplay' || currentMode === 'follow')) {
-    hintEl.textContent = 'backing track plays before piano enters';
-    hintEl.style.display = 'block';
-  } else {
+  if (hintEl) {
     hintEl.textContent = '';
     hintEl.style.display = 'none';
   }
