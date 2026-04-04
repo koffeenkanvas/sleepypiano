@@ -11,10 +11,46 @@
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
-    <!-- Ambient Blobs -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+    <!-- Intro Section -->
+    <div id="intro-container">
+      <canvas id="intro-canvas"></canvas>
+      <section class="intro-section" id="intro-sec-1">
+        <div class="intro-text">
+          <p>Find your rhythm</p>
+          <h2>SleepyKeys</h2>
+        </div>
+      </section>
+      <section class="intro-section" id="intro-sec-2">
+        <div class="intro-text">
+          <p>Master the keys</p>
+          <h2>Imagine. Play.</h2>
+        </div>
+      </section>
+      <section class="intro-section" id="intro-sec-3">
+        <div class="intro-text">
+          <p>Atmospheric Learning</p>
+          <h2>Your Journey</h2>
+        </div>
+      </section>
+      <section class="intro-section" id="intro-sec-4">
+        <div class="intro-text">
+          <p>Cinematic Experience</p>
+          <h2>Pure Calm</h2>
+        </div>
+      </section>
+      <section class="intro-section" id="intro-sec-5">
+        <div class="intro-text">
+          <p>End of Intro</p>
+          <h2>Ready to Play?</h2>
+        </div>
+      </section>
+    </div>
+
+    <!-- Main App Wrapper -->
+    <div id="app-wrapper">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
 
     <div class="app-container">
       <div class="app-header">
@@ -110,6 +146,8 @@
       <div class="fp-history" id="fp-history"></div>
 
       <div class="fp-hint">🎹 All keys active &nbsp;·&nbsp; Esc to exit &nbsp;·&nbsp; No rules, just play</div>
+    </div>
+
     </div>
 
     <script type="module" src="./main.js"></script>
