@@ -167,6 +167,7 @@ export class PianoIntro {
           onComplete: () => {
             this.isIntroPlaying = false;
             ScrollTrigger.getAll().forEach(st => st.enable());
+            ScrollTrigger.refresh(); // 🎯 Step 6: Recalculate for perfect sync
           }
         });
       }
@@ -505,31 +506,34 @@ export class PianoIntro {
     };
 
     gsap.to(orbitSettings, {
-      theta: Math.PI * 2.2, // 🎯 Step 2: Full 360+ orbital sweep 
-      radius: 15,          // 🎯 Step 2: Cinematic zoom-out
-      height: 8.5,         // 🎯 Step 2: High-crane rise
-      ease: "none", 
+      theta: Math.PI * 2.1, 
+      radius: 13,          
+      height: 6.5,         
+      ease: "power1.inOut", // 🔥 Weighted cinematic feel
       overwrite: "auto", 
       scrollTrigger: {
         trigger: "#intro-container",
         start: "top top",
-        end: "bottom top+=9000", // 🎯 Step 4: Massive exploratory journey
-        scrub: 35 
+        end: "bottom top+=2500", // 🎯 Step 4: Tighter, more controlled journey
+        scrub: 1.2 // 🎯 Step 4: Instant responsiveness
       },
       onUpdate: () => {
-        // 🎯 Step 2: DIRECT ORBIT CONTROL (No lag)
         const t = orbitSettings.theta;
-        const radius = orbitSettings.radius;
-        const height = orbitSettings.height;
+        const r = orbitSettings.radius;
+        const h = orbitSettings.height;
 
-        this.camera.position.x = Math.cos(t) * radius;
-        this.camera.position.z = Math.sin(t) * radius;
-        this.camera.position.y = height;
+        // 🎯 Step 2: Smooth Direct Orbit
+        this.camera.position.x = Math.cos(t) * r;
+        this.camera.position.z = Math.sin(t) * r;
 
+        // 🎯 Step 2: Weighted vertical motion (intentional rise)
+        this.camera.position.y = 2 + (h - 2) * 0.8;
+
+        // 🎯 Step 2: Slight forward bias (not perfectly centered)
         this.camera.lookAt(0.3, -0.2, 0); 
 
         if (this.piano) {
-           this.piano.rotation.y = t * 0.5; // Sync rotation directly
+           this.piano.rotation.y = t * 0.3; // Calibrated sync
         }
       }
     });
