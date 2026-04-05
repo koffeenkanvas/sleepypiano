@@ -52,12 +52,12 @@ body {
 }
 
 .intro-section {
-  height: 60vh; /* Smaller intro scroll space */
+  height: 55vh; /* Short, compact sections */
   display: flex;
-  align-items: flex-start; /* Move text up */
+  align-items: flex-start; 
   justify-content: center;
   pointer-events: none;
-  padding-top: 20vh; /* Slightly higher */
+  padding-top: 12vh; 
 }
 
 .intro-text {
