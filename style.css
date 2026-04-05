@@ -52,12 +52,12 @@ body {
 }
 
 .intro-section {
-  height: 55vh; /* Short, compact sections */
+  height: 100vh;
   display: flex;
-  align-items: flex-start; 
+  align-items: center;
   justify-content: center;
   pointer-events: none;
-  padding-top: 12vh; 
+  padding-top: 0;
 }
 
 .intro-text {
@@ -65,61 +65,72 @@ body {
   max-width: 900px;
   opacity: 0;
   transform: translateY(30px);
-  transition: all 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-  filter: blur(50px); /* Even more dramatic blur */
+  /* Removed CSS transition as it conflicts with GSAP */
+  filter: blur(0px); 
   pointer-events: none;
 }
 
 .intro-text.active {
   opacity: 1;
   transform: translateY(0);
-  filter: blur(0px); /* Focus into clarity */
 }
 
 .intro-text h2 {
-  font-size: clamp(1.8rem, 6vw, 3.5rem); /* Even smaller, more elegant */
-  font-weight: 200; /* Thinner weight for premium feel */
-  margin-bottom: 0.5rem;
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
+  font-weight: 500;
+  letter-spacing: 0.08em; /* 🎯 Step 4: Cinematic tracking */
   line-height: 1.1;
-  background: linear-gradient(-45deg, #fff, #b967ff, #01cdfe);
-  background-size: 300% 300%;
-  animation: gradientTextSync 10s ease infinite;
+  margin-bottom: 0.8rem;
+
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,1),
+    rgba(180,200,255,0.8),
+    rgba(255,255,255,1)
+  );
+  background-size: 200%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 6px; /* Wider spacing for elegance */
+  animation: shimmer 8s linear infinite;
+
+  text-shadow:
+    0 0 20px rgba(180,200,255,0.25), /* 🎯 Step 4: Cinematic glow */
+    0 0 60px rgba(120,150,255,0.2);
+
+  transition: opacity 0.3s ease, transform 0.4s ease;
+  backdrop-filter: blur(6px);
 }
 
-@keyframes gradientTextSync {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes shimmer {
+  0% { background-position: 0% }
+  100% { background-position: 200% }
 }
 
 .intro-text p {
-  font-size: clamp(0.8rem, 1.5vw, 1rem);
-  color: var(--text-main);
-  letter-spacing: 10px;
+  font-size: clamp(0.72rem, 1.1vw, 0.95rem);
+  color: rgba(210, 205, 225, 0.34);
+  letter-spacing: 0.45em;
   text-transform: uppercase;
-  font-weight: 200;
-  opacity: 0.3;
+  font-weight: 300;
 }
 
 #app-wrapper {
-  position: relative;
-  z-index: 100;
-  background: var(--bg-deep);
-  width: 100%;
+  background: radial-gradient(
+    circle at top,
+    #05070f 0%,
+    #02030a 60%,
+    #000000 100%
+  );
   min-height: 100vh;
+  padding: 4rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 80px;
-  padding-bottom: 4rem;
-  box-shadow: 0 -50px 100px rgba(0,0,0,0.8);
   opacity: 0;
-  transform: translateY(100px);
-  transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 1.5s ease;
+  position: relative;
+  z-index: 10;
 }
 
 #app-wrapper.visible {
@@ -187,16 +198,15 @@ body {
 
 /* ─── TEACHER BOARD ──────────────────────────────────────────────────────── */
 .teacher-board {
-  background: var(--bg-panel);
+  background: rgba(255,255,255,0.02);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(120,120,255,0.08);
   border-radius: var(--border-radius);
   padding: 1.5rem 2rem;
   width: 100%;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 
-              0 0 30px rgba(185, 103, 255, 0.05); /* Aurora glow */
+  box-shadow: 0 0 40px rgba(80,80,180,0.08);
   display: flex;
   flex-direction: column;
   align-items: center;

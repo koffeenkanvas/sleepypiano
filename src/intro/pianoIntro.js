@@ -5,6 +5,9 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,38 +17,83 @@ export class PianoIntro {
     this.canvas = document.getElementById('intro-canvas');
     if (!this.container || !this.canvas) return;
 
+    // Step 1: Intro State
+    this.isIntroPlaying = true;
+    this.introProgress = 0;
+
+    // Step 2: Cinematic Intro Camera Path (Reveal from Left-Back)
+    // End position is precisely calculated to match scroll start (theta: 1.15, radius: 5.5, height: 2.0)
+    this.introCamera = {
+      start: new THREE.Vector3(-6, 3.2, 5.5),
+      end: new THREE.Vector3(2.24, 2.0, 5.02),
+      lookStart: new THREE.Vector3(0, 0, 0),
+      lookEnd: new THREE.Vector3(0.4, -0.2, 0)
+    };
+
+    // Fade in from black
+    this.canvas.style.opacity = '0';
+    gsap.to(this.canvas, {
+      opacity: 1,
+      duration: 1.8,
+      ease: "power2.out"
+    });
+
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x02030a, 0.05); // Deeper dark
+    this.scene.background = new THREE.Color(0x02030a);
+    this.scene.fog = new THREE.FogExp2(0x02030a, 0.035); // 🎯 Step 3: Cinematic haze density
 
     new EXRLoader().load('/monochrome_studio_02_1k.exr', (texture) => {
       texture.mapping = THREE.EquirectangularReflectionMapping;
-      this.scene.environment = texture;
-      this.scene.environmentIntensity = 1.5; // Dialed up for strong reflections
-      this.scene.environmentRotation = new THREE.Euler(0, Math.PI / 2, 0);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
 
-      // Deep dark background
-      this.scene.background = new THREE.Color(0x02030a);
+      this.scene.environment = texture;
+      this.scene.environmentIntensity = 0.22;
     });
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.camera.position.set(2.2, 2.5, 3);
-    this.camera.lookAt(0, 0, 0);
+    this.camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    this.camera.position.set(2.4, 1.9, 4.8);
+    this.camera.lookAt(0, -0.2, 0);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
-      alpha: true
+      alpha: false,
+      powerPreference: "high-performance" // 🎯 Step 6: GPU priority
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const isMobile = window.innerWidth < 768;
+    this.renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5));
+    this.renderer.setClearColor(0x02030a); // 🎯 Step 1: Deep blue-black clear color
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.5;
+    this.renderer.toneMappingExposure = 0.72;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.useLegacyLights = false;
 
     // Performance: DRACO Loader
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     this.loader = new GLTFLoader();
     this.loader.setDRACOLoader(dracoLoader);
+
+    // FIX 6: MAGIC BLOOM (Post-processing)
+    this.composer = new EffectComposer(this.renderer);
+    const renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
+
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.65, // 🎯 Step 3: Intense film glow boost
+      0.8,  // Higher radius for bleed
+      0.7   // Threshold to only glow highlights
+    );
+    this.composer.addPass(bloomPass);
 
     this.piano = null;
     this.water = null;
@@ -72,199 +120,290 @@ export class PianoIntro {
     this.addWater();
     this.addParticles();
     await this.loadPiano();
-    await this.loadAccents();
+
+    // 🎯 Step 3: EARLY SCROLL PREP
     this.setupScrollAnimations();
+    ScrollTrigger.getAll().forEach(st => st.disable());
+
+    // 🎯 Step 4: FIRST TEXT APPEARS FIRST (Immediate reveal)
+    gsap.fromTo(
+      '#intro-sec-1 .intro-text',
+      { opacity: 0, y: 30, scale: 0.92 }, // 🎯 Step 4: Scale start
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1, // 🎯 Step 4: Film title reveal
+        duration: 1.2,
+        delay: 0.1,    
+        ease: "power3.out"
+      }
+    );
+
+    // Step 5: Master Intro Animation
+    gsap.to(this, {
+      introProgress: 1,
+      duration: 2.8,
+      ease: "power2.out",
+      onUpdate: () => {
+        const t = this.introProgress;
+
+        // 🎯 Step 1: True Cinematic Orbit (Wrap-around motion)
+        const radius = 6.8 - t * 2.3; // Zoom in
+        const angle = -Math.PI * 0.6 + t * Math.PI * 1.55; // Wrap path
+
+        this.camera.position.x = Math.cos(angle) * radius;
+        this.camera.position.z = Math.sin(angle) * radius;
+        this.camera.position.y = 2.8 - t * 0.8;
+
+        this.camera.lookAt(0.3, -0.2, 0); 
+      },
+      onComplete: () => {
+        // 🎯 Step 3: HARD HANDOFF (Stop intro path from fighting scroll)
+        gsap.killTweensOf(this.camera.position);
+
+        // Step 6: Smooth Handoff Buffer
+        gsap.to({}, {
+          duration: 0.1,
+          onComplete: () => {
+            this.isIntroPlaying = false;
+            ScrollTrigger.getAll().forEach(st => st.enable());
+          }
+        });
+      }
+    });
+
     this.animate();
 
     window.addEventListener('resize', () => this.onResize());
   }
 
   addWater() {
-    const geometry = new THREE.PlaneGeometry(200, 200);
-    
-    // Create a procedural ripple/noise texture for the water's normal map
+    const geometry = new THREE.PlaneGeometry(200, 200, 128, 128);
+
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#8080ff'; 
+
+    ctx.fillStyle = '#8080ff';
     ctx.fillRect(0, 0, 512, 512);
-    
-    // Create a much smoother, ambient noise map to prevent sharp specular rings
-    for (let i = 0; i < 200; i++) {
+
+    for (let i = 0; i < 140; i++) {
         const x = Math.random() * 512;
         const y = Math.random() * 512;
-        const r = Math.random() * 20;
+        const r = 8 + Math.random() * 18;
         const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-        grad.addColorStop(0, 'rgba(200, 200, 255, 0.15)');
+        grad.addColorStop(0, 'rgba(180, 190, 255, 0.10)');
         grad.addColorStop(1, 'rgba(128, 128, 255, 0)');
         ctx.fillStyle = grad;
         ctx.fillRect(x - r, y - r, r * 2, r * 2);
     }
-    
+
     const normalMap = new THREE.CanvasTexture(canvas);
     normalMap.wrapS = THREE.RepeatWrapping;
     normalMap.wrapT = THREE.RepeatWrapping;
-    normalMap.repeat.set(10, 10);
+    normalMap.repeat.set(7, 7);
     this.waterNormalMap = normalMap;
 
     const material = new THREE.MeshStandardMaterial({
-      color: 0x0a1a3a,  // strong blue to actually reflect light
-      metalness: 0.95,   
-      roughness: 0.08,  // water reacts to light beautifully
-      envMapIntensity: 2.0, // increased reflection per request
+      color: 0x0a1020,     // 🎯 Step 2: Separate from void
+      metalness: 0.22,
+      roughness: 0.32,     // 🎯 Step 2: Shinier
+      envMapIntensity: 0.35, // 🎯 Step 2: Mirror-like
       normalMap: this.waterNormalMap,
-      normalScale: new THREE.Vector2(0.3, 0.3), // distortions to feel alive
+      normalScale: new THREE.Vector2(0.08, 0.08),
       transparent: true,
-      opacity: 0.85     // REQUIRED so you can actually see the fake piano reflection underneath!
+      opacity: 0.96
     });
+
+    // 🎯 Step 2: GROUND GLOW (Stage illusion)
+    const groundGlow = new THREE.Mesh(
+      new THREE.CircleGeometry(6, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x1a2a5a,
+        transparent: true,
+        opacity: 0.12,
+        depthWrite: false
+      })
+    );
+    groundGlow.rotation.x = -Math.PI / 2;
+    groundGlow.position.y = -1.06;
+    this.scene.add(groundGlow);
+
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.time = { value: 0 };
+
+      // Vertex Logic: Layered ripples + passing UV
+      shader.vertexShader = `uniform float time;\nvarying vec2 vUv;\n` + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `
+        vUv = uv;
+        vec3 transformed = vec3(position);
+        transformed.z += sin(position.x * 0.7 + time * 0.8) * 0.02;
+        transformed.z += cos(position.y * 0.6 + time * 0.7) * 0.02;
+        transformed.z += sin((position.x + position.y) * 1.2 + time * 1.3) * 0.008; // Layer 2
+        `
+      );
+
+      // Fragment Logic: Fresnel + Horizon Gradient
+      shader.fragmentShader = `varying vec2 vUv;\nfloat fresnel;\n` + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        `#include <common>
+         varying vec3 vWorldPosition;
+         varying vec3 vNormal;`
+      ).replace(
+        '#include <output_fragment>',
+        `
+        float fresnel = pow(1.0 - dot(normalize(vNormal), vec3(0.0,1.0,0.0)), 2.0);
+        gl_FragColor.rgb += fresnel * 0.15;
+        // 🎯 Step 1: Specific horizon glow shift
+        gl_FragColor.rgb += vec3(0.03, 0.06, 0.12) * (1.0 - vUv.y);
+        #include <output_fragment>
+        `
+      );
+
+      this.waterShader = shader;
+    };
 
     this.water = new THREE.Mesh(geometry, material);
     this.water.rotation.x = -Math.PI / 2;
-    this.water.position.y = -1;
+    this.water.position.y = -1.08;
     this.scene.add(this.water);
   }
 
   addLights() {
-    // Base ambient light to prevent total disappearance
-    const baseLight = new THREE.AmbientLight(0x404060, 0.4);
-    this.scene.add(baseLight);
+    const ambient = new THREE.AmbientLight(0x0b1020, 0.18);
+    this.scene.add(ambient);
 
-    // FIX 2: BIG AMBIENT FILL ("air light")
-    this.fillLight = new THREE.HemisphereLight(0x6a5cff, 0x0a0f1f, 0.6);
-    this.scene.add(this.fillLight);
+    const key = new THREE.DirectionalLight(0xffffff, 0.42);
+    key.position.set(-2.5, 3.2, 2.8);
+    this.scene.add(key);
 
-    // FIX 1: TOP SOFT LIGHT (invisible but powerful)
-    this.topLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    this.topLight.position.set(0, 6, 0); 
-    this.topLight.target.position.set(0, 0, 0);
-    this.scene.add(this.topLight);
-    this.scene.add(this.topLight.target);
+    const rim = new THREE.DirectionalLight(0x8ea6ff, 0.32);
+    rim.position.set(2.8, 1.8, -3.5);
+    this.scene.add(rim);
 
-    // Front Angled Light 
-    const frontLight = new THREE.DirectionalLight(0xffffff, 2.5);
-    frontLight.position.set(3, 5, 4); 
-    this.scene.add(frontLight);
+    const warmAccent = new THREE.DirectionalLight(0xffd6a0, 0.10);
+    warmAccent.position.set(-1.5, 1.2, 1.5);
+    this.scene.add(warmAccent);
 
-    // Rim light 
-    const rimLight = new THREE.DirectionalLight(0x4a6cff, 1.5);
-    rimLight.position.set(-4, 3, -5);
-    this.scene.add(rimLight);
+    // Step 1: TARGETED FOCUS LIGHT (Spotlight)
+    const focusLight = new THREE.SpotLight(0xffffff, 0.6, 10, Math.PI / 6, 0.5, 1);
+    focusLight.position.set(0, 3.5, 2.5);
+    focusLight.target.position.set(0, -1, 0);
+    this.scene.add(focusLight);
+    this.scene.add(focusLight.target);
 
-    // Strong fixed reflection source for piano and water
-    const highlightLight = new THREE.PointLight(0xffffff, 2, 15);
-    highlightLight.position.set(0, 3, 2);
-    this.scene.add(highlightLight);
+    // 🎯 Step 4: DEPTH LAYERING (Ambient Haze)
+    this.haze = new THREE.PointLight(0x3a5bff, 0.25, 15);
+    this.haze.position.set(2, 3, -4);
+    this.scene.add(this.haze);
 
-    // Soft gradient light (replaces ugly blob)
-    const ambientGlow = new THREE.PointLight(0x4a6cff, 1.2, 20);
-    ambientGlow.position.set(-4, 2, -2);
-    this.scene.add(ambientGlow);
+    this.warm = new THREE.PointLight(0xffaa88, 0.15, 10);
+    this.warm.position.set(-2, 2, 2);
+    this.scene.add(this.warm);
 
-    // Aurora light
-    this.auroraLight = new THREE.PointLight(0x6a5cff, 1, 30);
-    this.scene.add(this.auroraLight);
+    // 🎯 Step 1: HORIZON GLOW (Depth layered)
+    const horizon = new THREE.Mesh(
+      new THREE.PlaneGeometry(50, 20),
+      new THREE.MeshBasicMaterial({
+        color: 0x1a2a5a,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.DoubleSide
+      })
+    );
+    horizon.position.set(0, 5, -12);
+    this.scene.add(horizon);
 
-    // Properly light the piano (Spotlight tracks camera)
-    this.keyLight = new THREE.SpotLight(0xffffff, 2.5, 50, Math.PI / 6);
-    this.keyLight.position.set(2, 4, 3);
-    this.scene.add(this.keyLight);
-    this.scene.add(this.keyLight.target);
-
-    // Underlight for water/piano separation
-    const underGlow = new THREE.PointLight(0x4a6cff, 0.8, 8);
-    underGlow.position.set(0, -1.2, 0);
-    this.scene.add(underGlow);
-
-    // Dedicated light hitting water directly
-    const waterLight = new THREE.PointLight(0x4a6cff, 1, 10);
-    waterLight.position.set(0, 1, 3);
-    this.scene.add(waterLight);
+    // 🎯 Step 1: MIDGROUND LAYER (Volumetric Fog)
+    const fogGeo = new THREE.PlaneGeometry(30, 30);
+    const fogMat = new THREE.MeshBasicMaterial({
+      color: 0x1a2a5a,
+      transparent: true,
+      opacity: 0.06,
+      depthWrite: false
+    });
+    const fog = new THREE.Mesh(fogGeo, fogMat);
+    fog.position.set(0, 2, -5); 
+    this.scene.add(fog);
   }
 
   addParticles() {
-    // Highly optimized mixed particle field
-    const particleGeo = new THREE.BufferGeometry();
-    const particleCount = 250; 
-    
-    const posArray = new Float32Array(particleCount * 3);
-    const colorArray = new Float32Array(particleCount * 3);
-    
-    // Core color palette
-    const colorBlue = new THREE.Color(0x88aaff); // Cool mist
-    const colorWarm = new THREE.Color(0xffb055); // Magical ember
-    
-    for(let i = 0; i < particleCount; i++) {
-       // Widen the spread again so it fills the screen rather than tightly hugging the piano
-       posArray[i*3]     = (Math.random() - 0.5) * 20;  // X: wide spread (-10 to 10)
-       posArray[i*3 + 1] = -1.0 + Math.random() * 8;    // Y: from water floor up to ceiling (-1 to 7)
-       posArray[i*3 + 2] = (Math.random() - 0.5) * 16;  // Z: deep scene spread (-8 to 8)
+    const count = 120; // 🎯 Step 3: Immersive density (tripled)
+    const positions = [];
+    const colors = [];
+    const scales = [];
 
-       // 25% chance of being a warm ember
-       const isWarm = Math.random() > 0.75;
-       const c = isWarm ? colorWarm : colorBlue;
-       
-       colorArray[i*3]     = c.r;
-       colorArray[i*3 + 1] = c.g;
-       colorArray[i*3 + 2] = c.b;
-    }
-    
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    particleGeo.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-    
-    this.particles = new THREE.Points(
-      particleGeo,
-      new THREE.PointsMaterial({
-        size: 0.04,
-        vertexColors: true, // Use the custom color array!
-        transparent: true,
-        opacity: 0.9
-      })
-    );
-    this.scene.add(this.particles);
+    const spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = 64;
+    spriteCanvas.height = 64;
+    const sctx = spriteCanvas.getContext('2d');
+    const g = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.25, 'rgba(255,245,220,0.9)');
+    g.addColorStop(0.55, 'rgba(255,220,160,0.35)');
+    g.addColorStop(1, 'rgba(255,200,120,0)');
+    sctx.fillStyle = g;
+    sctx.fillRect(0, 0, 64, 64);
+    const sprite = new THREE.CanvasTexture(spriteCanvas);
 
-    // Subtle glow light for atmosphere
-    const particleLight = new THREE.PointLight(0x6a5cff, 0.8, 10); 
-    particleLight.position.set(0, 2, 0);
-    this.scene.add(particleLight);
-  }
+    const radius = 10;
+    for (let i = 0; i < count; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+        const r = radius * (0.4 + Math.random() * 0.6);
 
-  loadAccents() {
-    return new Promise((resolve) => {
-      this.accents = [];
-      this.loader.load('/candles.glb', (gltf) => {
-        const candleParent = gltf.scene;
-        const scale = 0.08; 
+        const x = r * Math.sin(phi) * Math.cos(theta);
+        const y = Math.random() * 4 + 0.2;
+        const z = r * Math.sin(phi) * Math.sin(theta);
+
+        // 🎯 Step 1: Avoid piano collision (keep center clear)
+        if (Math.abs(x) < 2.5 && Math.abs(z) < 2.5) continue;
+
+        positions.push(x, y, z);
+
+        // 🎯 Step 2: Depth-aware scale/opacity (Illusion of space)
+        const depthFactor = (z + 10) / 10; // 0 (far) to 1 (near)
         
-        // Emissive material override
-        candleParent.traverse((child) => {
-          if(child.isMesh && child.material) {
-             child.material.emissive = new THREE.Color(0xffa95c);
-             child.material.emissiveIntensity = 2;
-          }
-        });
+        let r_p, g_p, b_p;
+        if (Math.random() > 0.68) {
+          r_p = 1.8 * (0.4 + depthFactor * 0.6);
+          g_p = 1.35 * (0.4 + depthFactor * 0.6);
+          b_p = 0.85 * (0.4 + depthFactor * 0.6);
+        } else {
+          r_p = 0.70 * (0.4 + depthFactor * 0.6);
+          g_p = 0.90 * (0.4 + depthFactor * 0.6);
+          b_p = 1.45 * (0.4 + depthFactor * 0.6);
+        }
+        colors.push(r_p, g_p, b_p);
 
-        const positions = [
-          { x: -1.2, y: -0.9, z: 1.5 },
-          { x: 1.5, y: -0.9, z: 1.8 }
-        ];
+        // Near particles = larger
+        scales.push(0.5 + (1.0 - (z/-10)) * 2.2); 
+    }
 
-        positions.forEach((pos) => {
-          const clone = candleParent.clone();
-          clone.scale.set(scale, scale, scale);
-          clone.position.set(pos.x, pos.y, pos.z);
-          
-          // Glow effect 
-          const glow = new THREE.PointLight(0xffa95c, 1.2, 6);
-          glow.position.set(0, 2, 0); 
-          clone.add(glow);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.setAttribute('aScale', new THREE.Float32BufferAttribute(scales, 1));
 
-          this.scene.add(clone);
-          this.accents.push({ mesh: clone, baseY: pos.y, offset: Math.random()*10, rotSpeed: 0.001 });
-        });
-        resolve();
-      }, undefined, () => resolve());
+    this.fireflyBaseColors = new Float32Array(colors);
+
+    const material = new THREE.PointsMaterial({
+      size: 0.14, // 🎯 Step 3: Cinematic scale (orb effect)
+      map: sprite,
+      transparent: true,
+      opacity: 0.98,
+      vertexColors: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true
     });
+
+    this.particles = new THREE.Points(geometry, material);
+    this.scene.add(this.particles);
   }
 
   loadPiano() {
@@ -283,43 +422,47 @@ export class PianoIntro {
               materials.forEach(mat => {
                 const matName = mat.name ? mat.name.toLowerCase() : '';
                 
-                // Add nice gloss, but avoid turning soft materials metallic
-                if (!matName.includes('felt') && !matName.includes('cloth') && !matName.includes('fabric')) {
-                   mat.roughness = Math.min(mat.roughness || 0.5, 0.25); 
-                   mat.metalness = Math.max(mat.metalness || 0, 0.4);   
-
-                   // Force lift pure black bases so lights actually bounce
-                   if (mat.color && mat.color.r < 0.05 && mat.color.g < 0.05 && mat.color.b < 0.05) {
-                      mat.color.setHex(0x2a2a2a); 
-                   }
-                }
-  
-                // Fake reflection boost so the material heavily captures the environment
-                mat.envMapIntensity = 3.0;
-              });
-            }
-          });
-
-          this.piano.scale.set(0.85, 0.85, 0.85); 
-          this.piano.position.y = -1;
-          this.scene.add(this.piano);
-
-          // FIX 3: FAKE WATER REFLECTION (cheap + premium illusion)
-          this.reflectionPiano = this.piano.clone();
-          this.reflectionPiano.scale.y *= -1;
-          this.reflectionPiano.position.y = -1.05;
-          this.reflectionPiano.traverse((child) => {
-            if (child.isMesh && child.material) {
-              if (Array.isArray(child.material)) {
-                child.material = child.material.map(m => m.clone());
-                child.material.forEach(m => { m.opacity = 0.2; m.transparent = true; });
-              } else {
-                child.material = child.material.clone();
-                child.material.opacity = 0.2;
-                child.material.transparent = true;
-              }
-            }
-          });
+                 // Add nice gloss, but avoid turning soft materials metallic
+                 if (!matName.includes('felt') && !matName.includes('cloth') && !matName.includes('fabric')) {
+                    mat.roughness = Math.min(mat.roughness || 0.5, 0.34); 
+                    mat.metalness = Math.max(mat.metalness || 0, 0.18);   
+ 
+                    // Step 1: Subtle color lift
+                    if (mat.color) {
+                       mat.color.multiplyScalar(1.25);
+                       // Force lift pure black bases 
+                       if (mat.color.r < 0.05 && mat.color.g < 0.05 && mat.color.b < 0.05) {
+                          mat.color.setRGB(0.10, 0.10, 0.11); 
+                       }
+                    }
+                 }
+   
+                 // Step 1: Boost reflection ONLY on piano
+                 mat.envMapIntensity = 0.45;
+               });
+             }
+           });
+ 
+           this.piano.scale.set(0.85, 0.85, 0.85); 
+           this.piano.position.y = -1;
+           this.scene.add(this.piano);
+ 
+           // FIX 3: FAKE WATER REFLECTION (cheap + premium illusion)
+           this.reflectionPiano = this.piano.clone();
+           this.reflectionPiano.scale.y *= -1;
+           this.reflectionPiano.position.y = -1.05;
+           this.reflectionPiano.traverse((child) => {
+             if (child.isMesh && child.material) {
+               if (Array.isArray(child.material)) {
+                 child.material = child.material.map(m => m.clone());
+                 child.material.forEach(m => { m.opacity = 0.08; m.transparent = true; });
+               } else {
+                 child.material = child.material.clone();
+                 child.material.opacity = 0.08;
+                 child.material.transparent = true;
+               }
+             }
+           });
           this.scene.add(this.reflectionPiano);
         
         resolve();
@@ -331,8 +474,8 @@ export class PianoIntro {
   }
 
   setupScrollAnimations() {
-    // Text sections
-    const ids = ['#intro-sec-1', '#intro-sec-2', '#intro-sec-3', '#intro-sec-4', '#intro-sec-5'];
+    // 🎯 Step 3: Text sections (Exclude #intro-sec-1 as it is handled manually)
+    const ids = ['#intro-sec-2', '#intro-sec-3', '#intro-sec-5'];
     
     ids.forEach((id) => {
       const el = document.querySelector(`${id} .intro-text`);
@@ -342,36 +485,77 @@ export class PianoIntro {
         trigger: id,
         start: "top 80%",
         end: "bottom 20%",
-        onEnter: () => el.classList.add('active'),
+        onEnter: () => {
+          if (!this.isIntroPlaying) el.classList.add('active');
+        },
         onLeave: () => el.classList.remove('active'),
-        onEnterBack: () => el.classList.add('active'),
+        onEnterBack: () => {
+          if (!this.isIntroPlaying) el.classList.add('active');
+        },
         onLeaveBack: () => el.classList.remove('active'),
       });
     });
 
     // Camera orbit object (Closer, Higher start)
+    // 🎯 SEAMLESS HANDOVER: Exact Golden Coordinates (No drift)
     const orbitSettings = { 
-      theta: Math.atan2(3, 2.2), 
-      radius: Math.sqrt(2.2*2.2 + 3*3), 
-      height: 2.5
+      theta: 1.15, 
+      radius: 5.5, 
+      height: 2.0
     };
 
     gsap.to(orbitSettings, {
-      theta: Math.PI * 0.8, // Revealed cinematic angle
-      radius: 10,          // Balanced pan-out
-      height: 6,          // Balanced final height
-      ease: "power2.out", // Smooth cinematic motion
+      theta: Math.PI * 2.2, // 🎯 Step 2: Full 360+ orbital sweep 
+      radius: 15,          // 🎯 Step 2: Cinematic zoom-out
+      height: 8.5,         // 🎯 Step 2: High-crane rise
+      ease: "none", 
+      overwrite: "auto", 
       scrollTrigger: {
         trigger: "#intro-container",
         start: "top top",
-        end: "bottom top",
-        scrub: 18 // Massively heavier, deliberate feel. Forces the user to wait out the cinematic pan.
+        end: "bottom top+=9000", // 🎯 Step 4: Massive exploratory journey
+        scrub: 35 
       },
       onUpdate: () => {
-        this.camera.position.x = orbitSettings.radius * Math.cos(orbitSettings.theta);
-        this.camera.position.z = orbitSettings.radius * Math.sin(orbitSettings.theta);
-        this.camera.position.y = orbitSettings.height;
-        this.camera.lookAt(0, 0, 0);
+        // 🎯 Step 2: DIRECT ORBIT CONTROL (No lag)
+        const t = orbitSettings.theta;
+        const radius = orbitSettings.radius;
+        const height = orbitSettings.height;
+
+        this.camera.position.x = Math.cos(t) * radius;
+        this.camera.position.z = Math.sin(t) * radius;
+        this.camera.position.y = height;
+
+        this.camera.lookAt(0.3, -0.2, 0); 
+
+        if (this.piano) {
+           this.piano.rotation.y = t * 0.5; // Sync rotation directly
+        }
+      }
+    });
+
+    // 🎬 Step 5: CROSSFADE TRANSITION (No jank)
+    gsap.set("#app-wrapper", { opacity: 0 }); // Initial state
+    
+    gsap.to("#app-wrapper", {
+      opacity: 1,
+      duration: 2,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: "#app-wrapper",
+        start: "top 85%",
+        end: "top 50%",
+        scrub: true
+      }
+    });
+
+    gsap.to("#intro-canvas", {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: "#app-wrapper", 
+        start: "top 80%",
+        end: "top 40%",
+        scrub: true
       }
     });
 
@@ -390,61 +574,93 @@ export class PianoIntro {
   }
 
   onResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(width, height);
+    this.composer.setSize(width, height);
   }
 
   animate() {
     requestAnimationFrame(() => this.animate());
-    
-    // Performance: Only render if container is in view
     if (!this.isRendering) return;
 
-    if (this.waterNormalMap) {
-      this.waterNormalMap.offset.x += 0.0005;
-      this.waterNormalMap.offset.y += 0.0003;
-    }
+    const time = performance.now() * 0.001;
 
-    // Subtle breathing animation for piano/lights
-    const time = Date.now() * 0.001;
+    // 🎯 Step 4: MICRO-MOTION BREATHING (Scene feeling alive)
     if (this.piano) {
-       this.piano.position.y = -1 + Math.sin(time) * 0.05;
-    }
-
-    // Dynamic Spotlight: Follows camera offset, scales by distance
-    if (this.keyLight && this.camera) {
-      this.keyLight.position.copy(this.camera.position);
-      this.keyLight.position.x += 2;
-      this.keyLight.position.y += 2;
-
-      const dist = this.camera.position.length();
-      this.keyLight.intensity = Math.min(3.0, dist * 0.3); // Farther = brighter silhouette
-      
-      // Dynamic exposure scaling
-      this.renderer.toneMappingExposure = THREE.MathUtils.clamp(dist * 0.4, 2.0, 4.0); // Boosted deeply so the lights penetrate the shadows
-    }
-
-    // Step 2: Aurora Light animation
-    if(this.auroraLight) {
-      this.auroraLight.position.x = Math.sin(time * 0.5) * 5;
-      this.auroraLight.position.z = Math.cos(time * 0.5) * 5;
-    }
-
-    // Mixed particle subtle animation
-    if(this.particles) {
-       this.particles.rotation.y = time * 0.03; 
-       this.particles.position.y = Math.sin(time * 0.3) * 0.2; 
-    }
-
-    // Accents floating
-    if (this.accents && this.accents.length > 0) {
-       this.accents.forEach(acc => {
-         acc.mesh.position.y = acc.baseY + Math.sin(time * 2 + acc.offset) * 0.03;
-         acc.mesh.rotation.y += acc.rotSpeed;
-       });
+      this.piano.position.y = -1 + Math.sin(time * 0.6) * 0.035;
+      this.piano.rotation.y += 0.0002; // slow idle spin
     }
     
-    this.renderer.render(this.scene, this.camera);
+    // Subtle camera breathe
+    this.camera.position.y += Math.sin(time * 0.35) * 0.008;
+
+    if (this.waterNormalMap) {
+      this.waterNormalMap.offset.x += 0.00012;
+      this.waterNormalMap.offset.y += 0.00008;
+    }
+
+    if (this.waterShader) {
+      this.waterShader.uniforms.time.value = time;
+    }
+
+    // 🎯 Step 5: DYNAMIC ENVIRONMENT LIFE (Light breathing)
+    this.scene.children.forEach(obj => {
+      if (obj.isPointLight) {
+        // Subtle flicker/pulse
+        const base = obj === this.haze ? 0.25 : 0.15;
+        obj.intensity = base + Math.sin(time * 2.2) * 0.04;
+      }
+    });
+
+    // 🎯 Step 3: CAMERA-SYNCED TEXT INTERACTION
+    const activeText = document.querySelector('.intro-text.active h2');
+    if (activeText) {
+      const z = this.camera.position.z;
+      // Formula: text reacts to proximity/light of piano
+      const opacityProg = Math.min(1, Math.max(0.6, z / 5.5));
+      activeText.style.opacity = opacityProg;
+    }
+
+    if (this.reflectionPiano) {
+      this.reflectionPiano.position.y = -1.05 + Math.sin(time * 0.6) * 0.025;
+      this.reflectionPiano.rotation.y = this.piano ? this.piano.rotation.y : 0;
+    }
+
+    if (this.particles) {
+      // 🎯 Step 4: FLOATING AIR ILLUSION (Parallax)
+      this.particles.position.copy(this.camera.position).multiplyScalar(0.1);
+      
+      this.particles.rotation.y += 0.00018;
+
+      const pos = this.particles.geometry.attributes.position;
+      const col = this.particles.geometry.attributes.color;
+
+      for (let i = 0; i < pos.count; i++) {
+        const ix = i * 3;
+
+        pos.array[ix + 1] += Math.sin(time * 0.7 + i * 1.37) * 0.00045;
+        pos.array[ix] += Math.cos(time * 0.35 + i * 0.91) * 0.00018;
+        pos.array[ix + 2] += Math.sin(time * 0.28 + i * 0.73) * 0.00015;
+
+        // 🎯 Step 3: Stronger shimmer/flicker (Vibrant life)
+        const flicker = 0.6 + 0.8 * Math.sin(time * (2.2 + (i % 5) * 0.2) + i * 2.2);
+
+        col.array[ix] = this.fireflyBaseColors[ix] * flicker;
+        col.array[ix + 1] = this.fireflyBaseColors[ix + 1] * flicker;
+        col.array[ix + 2] = this.fireflyBaseColors[ix + 2] * flicker;
+      }
+
+      pos.needsUpdate = true;
+      col.needsUpdate = true;
+    }
+
+    if (this.aurora) {
+      this.aurora.rotation.y += 0.0002;
+    }
+
+    this.composer.render();
   }
 }
