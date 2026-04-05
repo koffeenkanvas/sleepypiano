@@ -52,7 +52,7 @@ body {
 }
 
 .intro-section {
-  height: 80vh; /* Shorter, punchier scroll */
+  height: 60vh; /* Smaller intro scroll space */
   display: flex;
   align-items: flex-start; /* Move text up */
   justify-content: center;

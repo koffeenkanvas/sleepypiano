@@ -19,6 +19,8 @@ export class PianoIntro {
     new RGBELoader().load('/monochrome.hdr', (texture) => {
       texture.mapping = THREE.EquirectangularReflectionMapping;
       this.scene.environment = texture;
+      this.scene.environmentIntensity = 0.8;
+      this.scene.environmentRotation = new THREE.Euler(0, Math.PI / 2, 0);
 
       // IMPORTANT: keep background dark
       this.scene.background = new THREE.Color(0x0a0914);
@@ -82,11 +84,6 @@ export class PianoIntro {
     rimLight.position.set(-5, 5, -5);
     this.scene.add(rimLight);
 
-    // Volumetric glow BEHIND piano
-    const glowLight = new THREE.PointLight(0x4a6cff, 2, 10);
-    glowLight.position.set(0, 2, -3);
-    this.scene.add(glowLight);
-
     // Ground fade
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(50, 50),
@@ -113,10 +110,16 @@ export class PianoIntro {
             if (child.isMesh && child.material) {
               child.material.roughness = 0.2;
               child.material.metalness = 0.7;
+              
+              if (child.material.color && child.material.color.r > 0.4 && child.material.color.g < 0.2) {
+                child.material.color.setHex(0x111111);
+              } else if (child.material.name && child.material.name.toLowerCase().includes('felt')) {
+                child.material.color.setHex(0x111111);
+              }
             }
           });
 
-          this.piano.scale.set(1, 1, 1); 
+          this.piano.scale.set(0.85, 0.85, 0.85); 
           this.piano.position.y = -1;
           this.scene.add(this.piano);
         
@@ -163,7 +166,7 @@ export class PianoIntro {
         trigger: "#intro-container",
         start: "top top",
         end: "bottom top",
-        scrub: 5 // Heavier, more deliberate feel
+        scrub: 8 // Heavier, more deliberate feel
       },
       onUpdate: () => {
         this.camera.position.x = orbitSettings.radius * Math.cos(orbitSettings.theta);
