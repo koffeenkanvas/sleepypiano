@@ -1137,3 +1137,69 @@ body {
   from { opacity: 0.4; transform: scale(0.8); }
   to { opacity: 1; transform: scale(1.2); }
 }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+.footer {
+  width: 100%;
+  padding: 80px 20px 60px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.footer .brand {
+  margin-bottom: 14px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.footer .links {
+  margin-bottom: 24px;
+}
+
+.footer a {
+  color: rgba(255,255,255,0.5);
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.footer a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1px;
+  background: var(--accent-pink);
+  transition: width 0.3s ease;
+}
+
+.footer a:hover {
+  color: #fff;
+}
+
+.footer a:hover::after {
+  width: 100%;
+}
+
+.footer .credit {
+  font-size: 0.7rem;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.25);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
