@@ -25,8 +25,8 @@ export function initBgMusic() {
   audio.addEventListener("timeupdate", () => {
     if (isUserPlaying || !audio.duration || isLoopFading) return;
     
-    // Begin fade out 4 seconds before the end
-    if (audio.currentTime >= audio.duration - 4.0) {
+    // Begin fade out 18 seconds before the end
+    if (audio.currentTime >= audio.duration - 18.0) {
       isLoopFading = true;
       let vol = audio.volume;
       
@@ -37,8 +37,8 @@ export function initBgMusic() {
         } else {
           clearInterval(fadeOut);
           
-          // Jump back to 5.0s
-          if (audio) audio.currentTime = 5.0;
+          // Jump back to 2m 09s (129s)
+          if (audio) audio.currentTime = 129.0;
           
           // Fade back in
           const fadeIn = setInterval(() => {
@@ -59,7 +59,7 @@ export function initBgMusic() {
 function startBgMusic() {
   if (hasPlayed || !audio) return;
 
-  audio.currentTime = 5.0; // Start directly at 5.0s for immediate immersion
+  audio.currentTime = 129.0; // Start at 2m 09s as requested
   audio.volume = 0;
   audio.play().catch(e => console.log("Audio play blocked by browser:", e));
 
