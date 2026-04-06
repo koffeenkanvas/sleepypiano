@@ -1,7 +1,7 @@
 import { initKeyboard, setupKeyboardListeners } from './ui/keyboardView.js';
 import { prepLesson } from './lesson/lessonModes.js';
 import { initTeacher } from './ui/teacherBoardView.js';
-import { initBgMusic, fadeOutBgMusic, fadeInBgMusic } from './audio/bgMusic.js';
+import { initBgMusic, stopBgMusicPermanently, audio, isUserPlaying, clearFadeInterval } from './audio/bgMusic.js';
 import { PianoIntro } from './intro/pianoIntro.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -28,11 +28,30 @@ window.addEventListener('DOMContentLoaded', () => {
       start: "top 85%",
       onEnter: () => {
         appWrapper.classList.add('visible');
-        fadeOutBgMusic();
       },
       onLeaveBack: () => {
         appWrapper.classList.remove('visible');
-        fadeInBgMusic();
+      }
+    });
+
+    // 🎬 CUSTOM VOLUME SCRUB (Gradual fade from Ready to Play -> Piano)
+    gsap.to(audio, {
+      volume: 0,
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#intro-sec-5",
+        start: "top center", // Start fading as Ready to Play is centered
+        endTrigger: "#app-wrapper",
+        end: "top 10%",     // Fully silent by the time piano is focused
+        scrub: true,
+        onUpdate: (self) => {
+          if (isUserPlaying) {
+             self.kill();
+             audio.volume = 0;
+          } else {
+             clearFadeInterval();
+          }
+        }
       }
     });
   }

@@ -1,7 +1,15 @@
 let hasPlayed = false;
 export let isUserPlaying = false;
 let isLoopFading = false;
-let audio = null;
+export let audio = null;
+let fadeInterval = null;
+
+export function clearFadeInterval() {
+  if (fadeInterval) {
+    clearInterval(fadeInterval);
+    fadeInterval = null;
+  }
+}
 
 export function initBgMusic() {
   const entry = document.getElementById("entry-screen");
@@ -64,23 +72,23 @@ function startBgMusic() {
   audio.play().catch(e => console.log("Audio play blocked by browser:", e));
 
   let vol = 0;
-  const fade = setInterval(() => {
+  fadeInterval = setInterval(() => {
     if (vol < 0.3) {
       vol += 0.01;
       audio.volume = Math.min(vol, 0.3);
     } else {
-      clearInterval(fade);
+      clearInterval(fadeInterval);
+      fadeInterval = null;
     }
   }, 80);
 
   hasPlayed = true;
 }
 
-let fadeInterval = null;
 
 function fadeTo(targetVol, duration, callback) {
   if (!audio) return;
-  if (fadeInterval) clearInterval(fadeInterval);
+  clearFadeInterval();
   
   const step = 0.02;
   const intervalTime = (duration * step) / Math.abs(audio.volume - targetVol || 0.01);
