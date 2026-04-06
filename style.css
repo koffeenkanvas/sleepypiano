@@ -49,6 +49,7 @@ body {
   height: 100vh;
   z-index: -1;
   background: #000;
+  pointer-events: none;
 }
 
 .intro-section {
