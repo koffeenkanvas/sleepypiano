@@ -35,24 +35,28 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // 🎬 CUSTOM VOLUME SCRUB (Gradual fade from Ready to Play -> Piano)
-    gsap.to(audio, {
-      volume: 0,
-      ease: "none",
-      scrollTrigger: {
-        trigger: "#intro-sec-5",
-        start: "top center", // Start fading as Ready to Play is centered
-        endTrigger: "#app-wrapper",
-        end: "top 10%",     // Fully silent by the time piano is focused
-        scrub: true,
-        onUpdate: (self) => {
-          if (isUserPlaying) {
-             self.kill();
-             audio.volume = 0;
-          } else {
-             clearFadeInterval();
+    gsap.fromTo(audio, 
+      { volume: 0.3 },
+      {
+        volume: 0,
+        ease: "none",
+        immediateRender: false,
+        scrollTrigger: {
+          trigger: "#intro-sec-5",
+          start: "top center", // Start fading as Ready to Play is centered
+          endTrigger: "#app-wrapper",
+          end: "top 10%",     // Fully silent by the time piano is focused
+          scrub: true,
+          onUpdate: (self) => {
+            if (isUserPlaying) {
+               self.kill();
+               audio.volume = 0;
+            } else {
+               clearFadeInterval();
+            }
           }
         }
       }
-    });
+    );
   }
 });
