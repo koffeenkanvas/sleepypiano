@@ -5,6 +5,7 @@ import { updateFreePLayDisplay, closeFreePlay } from './freePlayView.js';
 import { updateRepeatKeysDisplay, updateTeacherUI } from './teacherBoardView.js';
 import { synth, tickSynth } from '../audio/pianoEngine.js';
 import { backingSynth } from '../audio/backingEngine.js';
+import { stopBgMusicPermanently } from '../audio/bgMusic.js';
 
 export function clearHighlightedKeys() {
   document.querySelectorAll('.key').forEach(el => {
@@ -39,6 +40,7 @@ export async function triggerNote(laptopKey) {
   const keyDef = PIANO_KEYS.find(k => k.key.toLowerCase() === laptopKey);
   if (!keyDef) return;
 
+  stopBgMusicPermanently();
   synth.triggerAttack(keyDef.note);
 
   const keyEl = keyElementsMap.get(laptopKey);
